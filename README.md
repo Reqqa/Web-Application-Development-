@@ -1,5 +1,5 @@
 # CourseMap
-Website LocalHost Link ( Req's Env Only : http://localhost/Web-Application-Development-/)
+Website LocalHost Link ( Req's Env Only : http://localhost/wad/src/index.php#)
 
 CourseMap is an e-learning web application that allows students to browse, enroll in, and track progress through online courses, while administrators manage the full course catalog.
 

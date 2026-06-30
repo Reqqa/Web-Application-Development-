@@ -1,0 +1,541 @@
+/* ==========================================================================
+   Base Reset & Typography (Dark Theme — White Accent)
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-base: #0a0a0a;
+    --bg-elevated: #121212;
+    --bg-card: #161616;
+    --border-subtle: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --text-primary: #ffffff;
+    --text-secondary: #b8b8b8;
+    --text-tertiary: #7a7a7a;
+    --accent: #ffffff;
+    --accent-dim: rgba(255, 255, 255, 0.85);
+}
+
+body {
+    font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 24px;
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 80px 0;
+    text-align: left;
+    max-width: 100%;
+}
+
+.hero > div:first-child {
+    flex: 1;
+    max-width: 600px;
+}
+
+.hero-title {
+    font-size: 3.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+}
+
+.hero-title .highlight {
+    text-decoration: none;
+    color: var(--accent);
+}
+
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    padding: 0;
+}
+
+.hero-visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 400px;
+}
+
+/* ==========================================================================
+   Buttons (White Accent Theme)
+   ========================================================================== */
+.btn {
+    display: inline-block;
+    background-color: var(--accent);
+    color: #0a0a0a;
+    padding: 14px 32px;
+    border-radius: 24px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 1px solid var(--accent);
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        opacity 0.15s ease-in-out;
+}
+
+.btn:hover {
+    background-color: var(--accent-dim);
+    border-color: var(--accent-dim);
+    opacity: 1;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+}
+
+.btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+}
+
+.btn-sm {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    border-radius: 20px;
+}
+
+/* ==========================================================================
+   Course Section Header & Grid
+   ========================================================================== */
+.courses-section {
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.view-all {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.view-all:hover {
+    text-decoration: underline;
+}
+
+/* Grid Layout */
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+/* ==========================================================================
+   Course Cards (Dark Glass Card Look)
+   ========================================================================== */
+.course-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.course-card:hover {
+    box-shadow: 0 4px 24px rgba(255, 255, 255, 0.06);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+}
+
+.card-banner {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    border-radius: 0;
+}
+
+/* Banner variants — neutral dark palette, no brand color reliance */
+.banner-purple {
+    background-color: #1c1c1c;
+}
+.banner-mint {
+    background-color: #232323;
+}
+.banner-yellow {
+    background-color: #2a2a2a;
+}
+
+.card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.course-meta {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.course-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.course-desc {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    flex-grow: 1;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.price {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 960px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 0;
+    }
+
+    .hero > div:first-child {
+        max-width: 100%;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-visual {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   Course List Specific Layout
+   ========================================================================== */
+.page-header {
+    padding: 40px 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+/* Flex layout mapping out Sidebar vs Main Content */
+.page-layout {
+    display: flex;
+    gap: 40px;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.filter-group {
+    margin-bottom: 32px;
+}
+
+.filter-group h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+.filter-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* Main Content Area adjustments */
+.main-content {
+    flex-grow: 1;
+}
+
+.results-bar {
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+    .page-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .filter-group {
+        margin-bottom: 0;
+        min-width: 200px;
+    }
+}
+
+/* ==========================================================================
+   Course Content / Documentation Page Layout Styles
+   ========================================================================== */
+.sticky-sidebar {
+    position: sticky;
+    top: 24px;
+    height: fit-content;
+}
+
+.syllabus-link {
+    display: block;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition:
+        background 0.1s ease,
+        color 0.1s ease;
+}
+
+.syllabus-link:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+}
+
+.syllabus-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Documentation Content Text Engine Styling */
+.documentation-deck {
+    max-width: 840px;
+}
+
+.doc-section {
+    padding: 24px 0;
+}
+
+.doc-section h2 {
+    font-size: 1.85rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: -0.3px;
+}
+
+.doc-section h3 {
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    margin: 24px 0 12px 0;
+    font-weight: 600;
+}
+
+.doc-section p {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 20px;
+}
+
+/* Monospaced Code Box Layouts */
+pre {
+    background-color: #161616;
+    color: #e5e5e5;
+    padding: 20px;
+    border-radius: 8px;
+    font-family:
+        "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    border: 1px solid var(--border-subtle);
+}
+
+code {
+    font-family: monospace;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* Blockquotes Callout Elements */
+blockquote {
+    border-left: 4px solid var(--accent);
+    background-color: rgba(255, 255, 255, 0.04);
+    padding: 20px;
+    margin: 24px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+blockquote strong {
+    color: var(--text-primary);
+}
+
+.footnote {
+    font-size: 0.9rem !important;
+    color: var(--text-tertiary) !important;
+    font-style: italic;
+}
+
+/* Content Layout Grid Data Table */
+.doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.doc-table th {
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    font-weight: 700;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-subtle);
+}
+
+.doc-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+}
+
+.doc-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 40px 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+main.container {
+    flex-grow: 1;
+}
