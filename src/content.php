@@ -51,6 +51,7 @@ $modules = $contentStmt->fetchAll();
     <!-- Relative path to your stylesheet -->
     <link rel="stylesheet" href="../wrappers/css/style.css">
 </head>
+<script src="authguard.js"></script>
 <body>
     <?php include "header.php"; ?>
 

@@ -39,7 +39,9 @@ $courses = $stmt->fetchAll();
         <section class="hero">
             <h1 class="hero-title">Invest in a better future, <br>invest in <span class="highlight">yourself.</span></h1>
             <p class="hero-subtitle">Offering comprehensive online courses signed to empower students with the knowledge and skills needed to be equipped for a better future.</p>
-            <a href="../src/courses.php" class="btn btn-primary">View courses</a>
+            <a href="../src/courses.php" class="btn btn-primary" style="white-space: nowrap;">
+                View courses
+            </a>
         </section>
 
         <section class="courses-section">

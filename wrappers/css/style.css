@@ -34,6 +34,56 @@ body {
     background-color: var(--bg-base);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+        repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.05) 0,
+            rgba(255, 255, 255, 0.05) 1px,
+            transparent 1px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            rgba(255, 255, 255, 0.05) 0,
+            rgba(255, 255, 255, 0.05) 1px,
+            transparent 1px,
+            transparent 4px
+        ),
+        linear-gradient(120deg, #050505 20%, #052124 35%, #050505 70%);
+    background-size:
+        6px 6px,
+        6px 6px,
+        300% 300%;
+    animation: sweepMove 60s ease-in-out infinite;
+}
+
+@keyframes sweepMove {
+    0% {
+        background-position:
+            0 0,
+            0 0,
+            0% 50%;
+    }
+    50% {
+        background-position:
+            0 0,
+            0 0,
+            100% 50%;
+    }
+    100% {
+        background-position:
+            0 0,
+            0 0,
+            0% 50%;
+    }
 }
 
 .container {
@@ -538,4 +588,427 @@ body {
 
 main.container {
     flex-grow: 1;
+}
+
+/* ==========================================================================
+   Centered Auth Card Module (single-card login/register, dark theme)
+   ========================================================================== */
+.auth-page-body {
+    background-color: var(--bg-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px;
+}
+
+.auth-card {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 40px 36px 32px;
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+.auth-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    padding: 6px 12px 6px 10px;
+    transition:
+        color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.auth-back:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+}
+
+.auth-back svg {
+    width: 14px;
+    height: 14px;
+}
+
+.auth-badge {
+    width: 56px;
+    height: 56px;
+    margin: 28px auto 24px;
+    border-radius: 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-badge svg {
+    width: 26px;
+    height: 26px;
+    color: var(--text-secondary);
+}
+
+.auth-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.auth-card .auth-subtitle {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+}
+
+.auth-card .auth-subtitle a,
+.auth-switch-footer a {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.auth-card .auth-subtitle a:hover,
+.auth-switch-footer a:hover {
+    border-color: var(--text-primary);
+}
+
+.auth-alert {
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    border: 1px solid;
+}
+
+.auth-alert.err {
+    background: rgba(220, 38, 38, 0.08);
+    border-color: rgba(220, 38, 38, 0.35);
+    color: #f3a3a3;
+}
+
+.auth-alert.succ {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.35);
+    color: #9fe3b4;
+}
+
+.auth-card .form-panel {
+    display: none;
+}
+
+.auth-card .form-panel.active {
+    display: block;
+}
+
+.auth-card .input-group {
+    margin-bottom: 12px;
+}
+
+.auth-card .input-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 500;
+}
+
+.auth-card .input-group input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+.auth-card .input-group input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.auth-card .input-group input:focus {
+    border-color: var(--border-strong);
+    background: #1a1a1a;
+}
+
+.auth-card .btn-auth-submit {
+    width: 100%;
+    margin-top: 8px;
+    padding: 13px 14px;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        opacity 0.15s ease,
+        transform 0.1s ease;
+}
+
+.auth-card .btn-auth-submit:hover {
+    opacity: 0.88;
+}
+
+.auth-card .btn-auth-submit:active {
+    transform: scale(0.99);
+}
+
+.auth-switch-footer {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 16px 0 0;
+}
+
+.auth-legal {
+    text-align: center;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--text-tertiary);
+    margin-top: 18px;
+}
+
+.auth-legal a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 32px 24px 24px;
+    }
+}
+
+/* ==========================================================================
+   Split-Screen Interface Modules (Reference Frame: image_569c56.jpg)
+   Kept for any pages still using the two-pane layout
+   ========================================================================== */
+.split-auth-body {
+    background-color: var(--bg-base);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.auth-split-screen {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    min-height: calc(100vh - 140px); /* Balance calculations against footers */
+}
+
+/* Left Pane Accent Box Configuration */
+.auth-visual-pane {
+    flex: 1;
+    background: linear-gradient(135deg, #180f2b 0%, #080511 100%);
+    padding: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border-subtle);
+}
+
+.visual-pane-content {
+    max-width: 480px;
+    width: 100%;
+}
+
+.pane-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.pane-title {
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.pane-description {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+/* Step Layout Guide Tracks */
+.step-guide-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.step-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    opacity: 0.4;
+    transition: opacity 0.25s ease;
+}
+
+.step-item.active {
+    opacity: 1;
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.step-detail h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.step-detail p {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+}
+
+/* Right Input Control Column */
+.auth-form-pane {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: var(--bg-base);
+}
+
+.split-auth-container {
+    max-width: 420px;
+    width: 100%;
+}
+
+.split-auth-container h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 6px;
+}
+
+.split-auth-container .auth-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+    text-align: left;
+}
+
+/* Form Structural Alignment Overrides */
+.split-auth-container .auth-toggle {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 4px;
+}
+
+.split-auth-container .toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 8px 0;
+}
+
+.split-auth-container .toggle-btn.active {
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: -6px;
+}
+
+.split-auth-container .input-group {
+    margin-bottom: 20px;
+}
+
+.split-auth-container .input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.split-auth-container .input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: border-color 0.15s ease;
+}
+
+.split-auth-container .input-group input:focus {
+    outline: none;
+    border-color: var(--border-strong);
+}
+
+.split-auth-container .btn-auth-submit {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    margin-top: 12px;
+}
+
+/* Responsive Media Viewports */
+@media (max-width: 900px) {
+    .auth-visual-pane {
+        display: none;
+    }
+    .auth-split-screen {
+        min-height: auto;
+    }
 }

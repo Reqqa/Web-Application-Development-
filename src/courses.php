@@ -44,6 +44,7 @@ $courses = $stmt->fetchAll();
         }
     </style>
 </head>
+<script src="authguard.js"></script>
 <body>
     <?php include "header.php"; ?>
 
