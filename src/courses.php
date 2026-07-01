@@ -112,7 +112,7 @@ $courses = $stmt->fetchAll();
                                         $course["description"],
                                     ); ?></p>
 
-                                    <div class="card-footer">
+                                    <div class="btn btn-sm">
                                         <a href="content.php?course_id=<?php echo $course[
                                             "id"
                                         ]; ?>" class="btn btn-sm" style="width: 100%; text-align: center; text-decoration: none; display: inline-block;">

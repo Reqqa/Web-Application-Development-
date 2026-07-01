@@ -97,12 +97,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body class="auth-page-body">
 
     <div class="auth-card">
-        <a href="javascript:history.back()" class="auth-back">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            Back
-        </a>
+        <div class="position-relative" style="height: 70px; width: 50px;">
+            <a href="javascript:history.back();" class="btn btn-primary btn-sm position-absolute" style="top: 5px; left: 10px;">
+                Back
+            </a>
+        </div>
 
-        <div class="auth-title">
+        <div class="auth-title position-absolute" style="transform: translateY(-15px);">
             <h2>Coursemap</h2>
         </div>
 

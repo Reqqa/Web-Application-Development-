@@ -1,6 +1,16 @@
-
 <?php
-// Establish Secure Connection to MySQL
+session_start();
+
+// --- AUTH GUARD ---
+if (empty($_SESSION["user_id"])) {
+    header("Location: auth.php");
+    exit();
+}
+if ($_SESSION["username"] != "Admin") {
+    header("Location: javascript:history.back();");
+    exit();
+}
+// Establish Connection to MySQL
 $host = "localhost";
 $db = "coursemap";
 $user = "root";
@@ -25,64 +35,81 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $action = $_POST["action"] ?? "";
 
     try {
-        // --- MASS IMPORT COURSES ---
-        if ($action === "mass_import_courses") {
-            $json_data = json_decode($_POST["courses_json"], true);
-            if (is_array($json_data)) {
-                $stmt = $pdo->prepare(
-                    "INSERT INTO courses (title, description, duration, sections, level, banner_class, icon) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                );
-                $count = 0;
-                foreach ($json_data as $row) {
-                    $stmt->execute([
-                        $row["title"],
-                        $row["description"],
-                        $row["duration"],
-                        $row["sections"],
-                        $row["level"],
-                        $row["banner_class"],
-                        $row["icon"],
-                    ]);
-                    $count++;
-                }
-                $message = "Successfully mass-imported $count courses!";
-                $status = "success";
-            } else {
-                throw new Exception(
-                    "Invalid JSON formatting structure for Courses.",
-                );
-            }
+        // --- ADD COURSE ---
+        if ($action === "add_course") {
+            $stmt = $pdo->prepare(
+                "INSERT INTO courses (title, description, duration, sections, level, banner_class, icon) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            );
+            $stmt->execute([
+                $_POST["title"],
+                $_POST["description"],
+                $_POST["duration"],
+                $_POST["sections"],
+                $_POST["level"],
+                $_POST["banner_class"],
+                $_POST["icon"],
+            ]);
+            $message = "Course added successfully!";
+            $status = "success";
         }
 
-        // --- MASS IMPORT LESSON CONTENTS ---
-        if ($action === "mass_import_contents") {
-            $json_data = json_decode($_POST["contents_json"], true);
-            if (is_array($json_data)) {
-                $stmt = $pdo->prepare(
-                    "INSERT INTO course_contents (course_id, sequence_order, section_title, body_text, code_snippet, callout_note) VALUES (?, ?, ?, ?, ?, ?)",
-                );
-                $count = 0;
-                foreach ($json_data as $row) {
-                    $stmt->execute([
-                        $row["course_id"],
-                        $row["sequence_order"],
-                        $row["section_title"],
-                        $row["body_text"],
-                        $row["code_snippet"] ?? null,
-                        $row["callout_note"] ?? null,
-                    ]);
-                    $count++;
-                }
-                $message = "Successfully mass-imported $count lesson contents!";
-                $status = "success";
-            } else {
-                throw new Exception(
-                    "Invalid JSON formatting structure for Lesson Contents.",
-                );
-            }
+        // --- EDIT COURSE ---
+        if ($action === "edit_course") {
+            $id = intval($_POST["id"]);
+            $stmt = $pdo->prepare(
+                "UPDATE courses SET title = ?, description = ?, duration = ?, sections = ?, level = ?, banner_class = ?, icon = ? WHERE id = ?",
+            );
+            $stmt->execute([
+                $_POST["title"],
+                $_POST["description"],
+                $_POST["duration"],
+                $_POST["sections"],
+                $_POST["level"],
+                $_POST["banner_class"],
+                $_POST["icon"],
+                $id,
+            ]);
+            $message = "Course updated successfully!";
+            $status = "success";
         }
 
-        // --- STANDARD INDIVIDUAL DELETE OPERATIONS ---
+        // --- ADD LESSON CONTENT ---
+        if ($action === "add_content") {
+            $stmt = $pdo->prepare(
+                "INSERT INTO course_contents (course_id, sequence_order, section_title, body_text, code_snippet, callout_note) VALUES (?, ?, ?, ?, ?, ?)",
+            );
+            $stmt->execute([
+                $_POST["course_id"],
+                $_POST["sequence_order"],
+                $_POST["section_title"],
+                $_POST["body_text"],
+                $_POST["code_snippet"] ?: null,
+                $_POST["callout_note"] ?: null,
+            ]);
+            $message = "Lesson content added successfully!";
+            $status = "success";
+        }
+
+        // --- EDIT LESSON CONTENT ---
+        if ($action === "edit_content") {
+            $id = intval($_POST["id"]);
+            $stmt = $pdo->prepare(
+                "UPDATE course_contents SET course_id = ?, sequence_order = ?, section_title = ?, body_text = ?, code_snippet = ?, callout_note = ? WHERE id = ?",
+            );
+            $stmt->execute([
+                $_POST["course_id"],
+                $_POST["sequence_order"],
+                $_POST["section_title"],
+                $_POST["body_text"],
+                $_POST["code_snippet"] ?: null,
+                $_POST["callout_note"] ?: null,
+                $id,
+            ]);
+            $message = "Lesson content updated successfully!";
+            $status = "success";
+        }
+
+        // --- DELETE COURSE ---
         if ($action === "delete_course") {
             $id = intval($_POST["id"]);
             $stmt = $pdo->prepare("DELETE FROM courses WHERE id = ?");
@@ -93,19 +120,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             );
             $stmt2->execute([$id]);
             $message =
-                "Course and its associated lesson metrics dropped successfully.";
+                "Course and its associated lesson contents deleted successfully.";
             $status = "success";
         }
 
+        // --- DELETE LESSON CONTENT ---
         if ($action === "delete_content") {
             $id = intval($_POST["id"]);
             $stmt = $pdo->prepare("DELETE FROM course_contents WHERE id = ?");
             $stmt->execute([$id]);
-            $message = "Lesson node deleted successfully.";
+            $message = "Lesson content deleted successfully.";
             $status = "success";
         }
     } catch (Exception $e) {
-        $message = "Error tracking operation: " . $e->getMessage();
+        $message = "Error: " . $e->getMessage();
         $status = "error";
     }
 }
@@ -117,6 +145,24 @@ $contents = $pdo
         "SELECT cc.*, c.title as course_title FROM course_contents cc JOIN courses c ON cc.course_id = c.id ORDER BY cc.course_id ASC, cc.sequence_order ASC",
     )
     ->fetchAll();
+
+// Helper to find entry for pre-filling edit modes
+function find_by_id($rows, $id)
+{
+    foreach ($rows as $row) {
+        if ($row["id"] == $id) {
+            return $row;
+        }
+    }
+    return null;
+}
+
+$edit_course = isset($_GET["edit_course"])
+    ? find_by_id($courses, intval($_GET["edit_course"]))
+    : null;
+$edit_content = isset($_GET["edit_content"])
+    ? find_by_id($contents, intval($_GET["edit_content"]))
+    : null;
 ?>
 
 <!DOCTYPE html>
@@ -124,26 +170,19 @@ $contents = $pdo
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Management Console</title>
+    <title>Control Deck — CourseMap Admin</title>
+    <!-- REFERENCE THE UNIFIED THEME CSS -->
     <link rel="stylesheet" href="../wrappers/css/style.css">
-    <style>
-        .admin-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 24px; border-radius: 6px; margin-bottom: 32px; }
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        textarea.json-area { width: 100%; height: 160px; font-family: monospace; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; margin-top: 8px; font-size: 0.85rem; background: #1e1e2e; color: #cdd6f4; resize: vertical; }
-        .alert { padding: 16px; border-radius: 4px; margin-bottom: 24px; font-weight: 600; }
-        .alert.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .alert.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .btn-danger { background-color: #dc2626 !important; color: #fff !important; cursor: pointer; border: none; padding: 6px 12px; border-radius: 4px; }
-        .btn-danger:hover { background-color: #b91c1c !important; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+<script src="authguard.js"></script>
 <body>
     <?php include "header.php"; ?>
 
     <main class="container">
         <header class="page-header">
             <h1>Platform Administration Control Deck</h1>
-            <p>Deploy programmatic updates, execute data sweeps, or process continuous mass batch imports.</p>
+            <p>Enterprise-grade structural content deployment system.</p>
         </header>
 
         <?php if (!empty($message)): ?>
@@ -152,114 +191,290 @@ $contents = $pdo
 ); ?></div>
         <?php endif; ?>
 
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <span>Active Systems Engines</span>
+                <h4><?php echo count($courses); ?> Courses</h4>
+            </div>
+            <div class="metric-card">
+                <span>Compiled Lesson Blocks</span>
+                <h4><?php echo count($contents); ?> Modules</h4>
+            </div>
+        </section>
+
         <section class="admin-grid">
             <div class="admin-box">
-                <h3>Mass Add Courses (JSON Entry)</h3>
-                <p class="footnote">Inject an array containing title, description, duration, sections, level, banner_class, and icon.</p>
+                <div class="form-box-header">
+                    <h3><?php echo $edit_course
+                        ? "Edit Active Course"
+                        : "Create Core Course"; ?></h3>
+                    <?php if ($edit_course): ?>
+                        <a href="admin.php" class="btn-cancel">Dismiss</a>
+                    <?php endif; ?>
+                </div>
                 <form method="POST">
-                    <input type="hidden" name="action" value="mass_import_courses">
-                    <textarea class="json-area" name="courses_json" placeholder='[{"title": "Rust Mastery", ...}]' required></textarea>
-                    <button type="submit" class="btn btn-sm" style="margin-top:12px; width:100%;">Process Mass Course Injection</button>
+                    <input type="hidden" name="action" value="<?php echo $edit_course
+                        ? "edit_course"
+                        : "add_course"; ?>">
+                    <?php if ($edit_course): ?>
+                        <input type="hidden" name="id" value="<?php echo $edit_course[
+                            "id"
+                        ]; ?>">
+                    <?php endif; ?>
+
+                    <div class="form-row">
+                        <label for="title">Course Title</label>
+                        <input type="text" id="title" name="title" required value="<?php echo htmlspecialchars(
+                            $edit_course["title"] ?? "",
+                        ); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="description">Syllabus Context Summary</label>
+                        <textarea id="description" name="description" required><?php echo htmlspecialchars(
+                            $edit_course["description"] ?? "",
+                        ); ?></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="duration">Instructional Duration (Hours)</label>
+                        <input type="number" id="duration" name="duration" step="0.5" min="0" required value="<?php echo htmlspecialchars(
+                            $edit_course["duration"] ?? "",
+                        ); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="sections">Target Section Allocation Count</label>
+                        <input type="number" id="sections" name="sections" min="0" required value="<?php echo htmlspecialchars(
+                            $edit_course["sections"] ?? "",
+                        ); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="level">Complexity Tier Ranking</label>
+                        <select id="level" name="level" required>
+                            <?php
+                            $levels = ["Beginner", "Intermediate", "Advanced"];
+                            $current_level = $edit_course["level"] ?? "";
+                            foreach ($levels as $lvl) {
+                                $selected =
+                                    $current_level === $lvl ? "selected" : "";
+                                echo "<option value=\"$lvl\" $selected>$lvl</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="banner_class">Frontend Frame CSS Configuration</label>
+                        <input type="text" id="banner_class" name="banner_class" required value="<?php echo htmlspecialchars(
+                            $edit_course["banner_class"] ?? "",
+                        ); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="icon">Design Vector Reference Element</label>
+                        <input type="text" id="icon" name="icon" required value="<?php echo htmlspecialchars(
+                            $edit_course["icon"] ?? "",
+                        ); ?>">
+                    </div>
+
+                    <button type="submit" class="btn-primary-deck">
+                        <?php echo $edit_course
+                            ? "Apply Block Modification"
+                            : "Deploy Course Architecture"; ?>
+                    </button>
                 </form>
             </div>
 
             <div class="admin-box">
-                <h3>Mass Add Lessons (JSON Entry)</h3>
-                <p class="footnote">Inject an array mapping to course_id, sequence_order, section_title, body_text, code_snippet, and callout_note.</p>
+                <div class="form-box-header">
+                    <h3><?php echo $edit_content
+                        ? "Modify Target Content Segment"
+                        : "Inject Structural Course Content"; ?></h3>
+                    <?php if ($edit_content): ?>
+                        <a href="admin.php" class="btn-cancel">Dismiss</a>
+                    <?php endif; ?>
+                </div>
                 <form method="POST">
-                    <input type="hidden" name="action" value="mass_import_contents">
-                    <textarea class="json-area" name="contents_json" placeholder='[{"course_id": 2, ...}]' required></textarea>
-                    <button type="submit" class="btn btn-sm" style="margin-top:12px; width:100%;">Process Mass Lesson Injection</button>
+                    <input type="hidden" name="action" value="<?php echo $edit_content
+                        ? "edit_content"
+                        : "add_content"; ?>">
+                    <?php if ($edit_content): ?>
+                        <input type="hidden" name="id" value="<?php echo $edit_content[
+                            "id"
+                        ]; ?>">
+                    <?php endif; ?>
+
+                    <div class="form-row">
+                        <label for="course_id">Host Target Matrix</label>
+                        <select id="course_id" name="course_id" required>
+                            <?php foreach ($courses as $c):
+                                $sel =
+                                    isset($edit_content["course_id"]) &&
+                                    $edit_content["course_id"] == $c["id"]
+                                        ? "selected"
+                                        : ""; ?>
+                                <option value="<?php echo $c[
+                                    "id"
+                                ]; ?>" <?php echo $sel; ?>>
+                                    <?php echo htmlspecialchars($c["title"]); ?>
+                                </option>
+                            <?php
+                            endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="sequence_order">Execution Order Rank</label>
+                        <input type="number" id="sequence_order" name="sequence_order" min="0" required value="<?php echo htmlspecialchars(
+                            $edit_content["sequence_order"] ?? "",
+                        ); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="section_title">Section Block Identifier Header</label>
+                        <input type="text" id="section_title" name="section_title" required value="<?php echo htmlspecialchars(
+                            $edit_content["section_title"] ?? "",
+                        ); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="body_text">Narrative Body Markdown/Text</label>
+                        <textarea id="body_text" name="body_text" required><?php echo htmlspecialchars(
+                            $edit_content["body_text"] ?? "",
+                        ); ?></textarea>
+                    </div>
+
+                    <div class="form-row code">
+                        <label for="code_snippet">Development Code Block Sandbox (Optional)</label>
+                        <textarea id="code_snippet" name="code_snippet"><?php echo htmlspecialchars(
+                            $edit_content["code_snippet"] ?? "",
+                        ); ?></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="callout_note">Visual Highlight Highlight Note (Optional)</label>
+                        <textarea id="callout_note" name="callout_note"><?php echo htmlspecialchars(
+                            $edit_content["callout_note"] ?? "",
+                        ); ?></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary-deck">
+                        <?php echo $edit_content
+                            ? "Commit Structural Updates"
+                            : "Broadcast Node Stream"; ?>
+                    </button>
                 </form>
             </div>
         </section>
 
-        <section class="admin-box">
-            <h2>Current Courses Registry (<?php echo count($courses); ?>)</h2>
-            <table class="doc-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Level</th>
-                        <th>Duration</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($courses as $c): ?>
+        <section class="admin-box" style="margin-bottom: 32px;">
+            <h2>Master Course Architecture Records (<?php echo count(
+                $courses,
+            ); ?>)</h2>
+            <div class="table-container">
+                <table class="doc-table">
+                    <thead>
                         <tr>
-                            <td><strong><?php echo $c["id"]; ?></strong></td>
-                            <td><?php echo htmlspecialchars(
-                                $c["title"],
-                            ); ?></td>
-                            <td><?php echo htmlspecialchars(
-                                $c["level"],
-                            ); ?></td>
-                            <td><?php echo $c["duration"]; ?> hrs</td>
-                            <td>
-                                <form method="POST" class="js-delete-form"
-                                      data-item-type="course"
-                                      data-item-name="<?php echo htmlspecialchars(
-                                          $c["title"],
-                                          ENT_QUOTES,
-                                      ); ?>">
-                                    <input type="hidden" name="action" value="delete_course">
-                                    <input type="hidden" name="id" value="<?php echo $c[
-                                        "id"
-                                    ]; ?>">
-                                    <button type="submit" class="btn-danger">Delete</button>
-                                </form>
-                            </td>
+                            <th>System ID</th>
+                            <th>Descriptive Title</th>
+                            <th>Difficulty Target</th>
+                            <th>Allocation Range</th>
+                            <th>Data Mutations</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($courses as $c): ?>
+                            <tr>
+                                <td><code style="color:var(--accent-primary);">[ID-<?php echo $c[
+                                    "id"
+                                ]; ?>]</code></td>
+                                <td style="font-weight: 500;"><?php echo htmlspecialchars(
+                                    $c["title"],
+                                ); ?></td>
+                                <td>
+                                    <span class="badge <?php echo strtolower(
+                                        $c["level"],
+                                    ); ?>">
+                                        <?php echo htmlspecialchars(
+                                            $c["level"],
+                                        ); ?>
+                                    </span>
+                                </td>
+                                <td style="color: var(--text-muted);"><?php echo $c[
+                                    "duration"
+                                ]; ?> Hours</td>
+                                <td class="row-actions">
+                                    <a href="admin.php?edit_course=<?php echo $c[
+                                        "id"
+                                    ]; ?>" class="btn-edit">Edit</a>
+                                    <form method="POST" class="js-delete-form" data-item-type="course" data-item-name="<?php echo htmlspecialchars(
+                                        $c["title"],
+                                        ENT_QUOTES,
+                                    ); ?>">
+                                        <input type="hidden" name="action" value="delete_course">
+                                        <input type="hidden" name="id" value="<?php echo $c[
+                                            "id"
+                                        ]; ?>">
+                                        <button type="submit" class="btn-danger">Drop</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <section class="admin-box">
-            <h2>Active Lesson Contents Map (<?php echo count(
+            <h2>Active Content Matrix Nodes Mapping (<?php echo count(
                 $contents,
             ); ?>)</h2>
-            <table class="doc-table">
-                <thead>
-                    <tr>
-                        <th>Course Target</th>
-                        <th>Seq</th>
-                        <th>Section Title</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($contents as $cnt): ?>
+            <div class="table-container">
+                <table class="doc-table">
+                    <thead>
                         <tr>
-                            <td><small><?php echo htmlspecialchars(
-                                $cnt["course_title"],
-                            ); ?></small></td>
-                            <td><strong><?php echo $cnt[
-                                "sequence_order"
-                            ]; ?></strong></td>
-                            <td><?php echo htmlspecialchars(
-                                $cnt["section_title"],
-                            ); ?></td>
-                            <td>
-                                <form method="POST" class="js-delete-form"
-                                      data-item-type="lesson"
-                                      data-item-name="<?php echo htmlspecialchars(
-                                          $cnt["section_title"],
-                                          ENT_QUOTES,
-                                      ); ?>">
-                                    <input type="hidden" name="action" value="delete_content">
-                                    <input type="hidden" name="id" value="<?php echo $cnt[
-                                        "id"
-                                    ]; ?>">
-                                    <button type="submit" class="btn-danger">Delete</button>
-                                </form>
-                            </td>
+                            <th>Host Target Pipeline</th>
+                            <th>Sequence Key</th>
+                            <th>Section Identifier Block</th>
+                            <th>Data Mutations</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($contents as $cnt): ?>
+                            <tr>
+                                <td style="color: var(--text-muted); font-size: 0.85rem; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    <?php echo htmlspecialchars(
+                                        $cnt["course_title"],
+                                    ); ?>
+                                </td>
+                                <td><code>#<?php echo $cnt[
+                                    "sequence_order"
+                                ]; ?></code></td>
+                                <td style="font-weight: 500;"><?php echo htmlspecialchars(
+                                    $cnt["section_title"],
+                                ); ?></td>
+                                <td class="row-actions">
+                                    <a href="admin.php?edit_content=<?php echo $cnt[
+                                        "id"
+                                    ]; ?>" class="btn-edit">Edit</a>
+                                    <form method="POST" class="js-delete-form" data-item-type="lesson" data-item-name="<?php echo htmlspecialchars(
+                                        $cnt["section_title"],
+                                        ENT_QUOTES,
+                                    ); ?>">
+                                        <input type="hidden" name="action" value="delete_content">
+                                        <input type="hidden" name="id" value="<?php echo $cnt[
+                                            "id"
+                                        ]; ?>">
+                                        <button type="submit" class="btn-danger">Drop</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
 
@@ -267,23 +482,15 @@ $contents = $pdo
 
     <script>
         function confirmDoubleDelete(itemType, itemName) {
-            // First validation checkpoint
             const firstCheck = confirm(`Are you sure you want to delete the ${itemType}: "${itemName}"?`);
+            if (!firstCheck) return false;
 
-            if (!firstCheck) {
-                return false;
-            }
-
-            // Warning variations based on structural impacts
             const warningMsg = itemType === 'course'
-                ? `⚠️ WARNING: This will also permanently drop ALL modular lesson content attached to this course! Are you ABSOLUTELY sure?`
+                ? `⚠️ WARNING: This will also permanently drop ALL lesson content attached to this course! Are you ABSOLUTELY sure?`
                 : `Are you absolutely sure you want to permanently erase this lesson module? This action cannot be undone.`;
-
-            // Second validation checkpoint
             return confirm(warningMsg);
         }
 
-        // Attach handlers via data-* attributes instead of inline PHP-in-JS
         document.querySelectorAll('.js-delete-form').forEach(function (form) {
             form.addEventListener('submit', function (event) {
                 const itemType = form.dataset.itemType;
